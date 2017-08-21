@@ -6,7 +6,7 @@ use think\worker\Server;
 
 class Worker extends Server
 {
-    protected $socket = 'tcp://www.chaisz.xyz:2346';
+    protected $socket = 'tcp://0.0.0.0:2346';
 
     /**
      * 收到信息
@@ -15,7 +15,8 @@ class Worker extends Server
      */
     public function onMessage($connection, $data)
     {
-        $connection->send('我收到你的信息了');
+        echo "$data\n";
+        $connection->send("$data\n");
     }
 
     /**
@@ -24,7 +25,7 @@ class Worker extends Server
      */
     public function onConnect($connection)
     {
-        echo "connect success!";
+        echo "connect success!\n";
     }
 
     /**
@@ -33,7 +34,7 @@ class Worker extends Server
      */
     public function onClose($connection)
     {
-        echo "close";
+        echo "close\n";
     }
 
     /**
