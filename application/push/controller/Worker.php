@@ -6,7 +6,7 @@ use think\worker\Server;
 
 class Worker extends Server
 {
-    protected $socket = 'socket://www.chaisz.xyz:2346';
+    protected $socket = 'tcp://www.chaisz.xyz:2346';
 
     /**
      * 收到信息
