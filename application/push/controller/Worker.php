@@ -6,8 +6,9 @@ use think\worker\Server;
 
 class Worker extends Server
 {
+//public    $socket = 'tcp://0.0.0.0:2346';
     protected $socket = 'tcp://0.0.0.0:2346';
-
+public    $global_uid = 0;
     /**
      * 收到信息
      * @param $connection
@@ -15,8 +16,12 @@ class Worker extends Server
      */
     public function onMessage($connection, $data)
     {
-        echo "$data\n";
-        $connection->send("$data\n");
+        global $socket;
+        foreach($socket->connections as $conn)
+        {
+            $conn->send("user[{$connection->uid}] said: $data\n");
+        }
+        echo "senddata : $data";
     }
 
     /**
@@ -25,7 +30,12 @@ class Worker extends Server
      */
     public function onConnect($connection)
     {
-        echo "connect success!\n";
+      var_dump($socket);
+        global $socket, $global_uid;
+        // 为这个连接分配一个uid
+        $connection->uid = ++$global_uid;
+
+        echo "connect success! uid = $connection->uid";
     }
 
     /**
@@ -34,7 +44,13 @@ class Worker extends Server
      */
     public function onClose($connection)
     {
-        echo "close\n";
+        global $socket;
+        foreach($socket->connections as $conn)
+        {
+            $conn->send("user[{$connection->uid}] logout");
+            echo "close! uid = $connection->uid";
+        }
+
     }
 
     /**
