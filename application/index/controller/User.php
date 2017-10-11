@@ -5,7 +5,7 @@ class User
 {
     public function getusers()
     {
-        $users = Db::table('user')->field('password,token',true)->select();
+        $users = Db::table('xc_user')->field('password,token',true)->select();
         return json_encode(['code' => '200', 'message' => 'success!', 'users' => $users]);
     }
 
@@ -17,27 +17,28 @@ class User
 
     public function register()
     {
-        $account = $_POST["account"];
+        $email = $_POST["email"];
         $password = $_POST["password"];
-        $result = Db::table('user')->where('account',$account)->find();
+        $devicetoken = $_POST["devicetoken"];
+        $result = Db::table('xc_user')->where('email',$email)->find();
         if ($result) {
           # code...
           return json_encode(['code' => '400', 'message' => '用户已存在!']);
         }else{
-          $uid = Db::table('user')->insertGetId(array('account' => $account, 'password' => $password));
+          $uid = Db::table('xc_user')->insertGetId(array('email' => $email, 'password' => $password, 'devicetoken' => $devicetoken, 'createIp' => $_SERVER["REMOTE_ADDR"], 'createDate' => time()));
           return json_encode(['code' => '200', 'message' => '注册成功!', 'uid' => $uid]);
         }
     }
 
     public function login()
     {
-        $account = $_POST["account"];
+        $email = $_POST["email"];
         $password = $_POST["password"];
-        $result = Db::table('user')->where('account',$account)->value('password');
+        $result = Db::table('xc_user')->where('email',$email)->value('password');
         if ($result) {
           if ($password == $result) {
             # code...
-            $result = Db::table('user')->field('password',true)->where('account',$account)->find();
+            $result = Db::table('xc_user')->field('password',true)->where('email',$email)->find();
             return json_encode(['code' => '200', 'message' => '登录成功!', 'userInfo' => $result]);
           }else {
             # code...
@@ -61,7 +62,7 @@ class User
           // 成功上传后 获取上传信息
           $savePath = $info->getSaveName();
           $filePath = config('ROOT_URL') .'headimages' . DS . $savePath;
-          $result = Db::table('user')->where('uid', $uid)->update(['headimage' => $filePath]);
+          $result = Db::table('xc_user')->where('id', $uid)->update(['headimage' => $filePath]);
           if ($result) {
             # code...
             return json_encode(['code' => '200', 'message' => '上传成功!', 'userInfo' => $filePath]);
@@ -80,10 +81,9 @@ class User
       $uid = $_POST["uid"];
       $phone = $_POST["phone"];
       $nickname = $_POST["nickname"];
-      $sex = $_POST["sex"];
-      $result = Db::table('user')->update(['phone' => $phone, 'nickname' => $nickname, 'sex' => $sex, 'uid' => $uid]);
+      $result = Db::table('xc_user')->update(['phone' => $phone, 'nickname' => $nickname, 'id' => $uid]);
       if($result){
-          $result = Db::table('user')->field('password,token',true)->where('uid',$uid)->find();
+          $result = Db::table('xc_user')->field('password,token',true)->where('id',$uid)->find();
           return json_encode(['code' => '200', 'message' => '修改成功!', 'userInfo' => $result]);
       }else {
             # code...
@@ -96,10 +96,10 @@ class User
       $uid = $_POST["uid"];
       $oldpassword = $_POST["password"];
       $newpassword = $_POST["newpassword"];
-      $password = Db::table('user')->where('uid',$uid)->value('password');
+      $password = Db::table('xc_user')->where('id',$uid)->value('password');
       if ($password == $oldpassword) {
         # code...
-        $result = Db::table('user')->where('uid', $uid)->setField(['password' => $newpassword]);
+        $result = Db::table('xc_user')->where('id', $uid)->setField(['password' => $newpassword]);
         if ($result) {
           # code...
           return json_encode(['code' => '200', 'message' => '修改成功!']);
@@ -113,6 +113,8 @@ class User
     }
 
 }
+
+
 
 // http://localhost/xchat/public/index/user/getusers
 // http://localhost/xchat/public/index/user/register

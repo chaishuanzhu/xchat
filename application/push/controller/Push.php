@@ -1,14 +1,13 @@
 <?php
 namespace app\push\controller;
-
 class Push
 {
 
     public function ios ()
     {
       // 这里是我们上面得到的deviceToken，直接复制过来（记得去掉空格）
-      $deviceToken = 'ed8c1c155a6daf448f610ae749eec794be551f8d1b145448711eea973583f820';
-      // Put your private key's passphrase here:
+      $deviceToken = $_POST['devicetoken'];
+      // Put your private key's passphrase here(推送证书密码):
       $passphrase = '123456';
       // Put your alert message here:
       $message = $_POST['msg'];  //'My first push test!';
@@ -50,4 +49,3 @@ class Push
     }
 
 }
-
